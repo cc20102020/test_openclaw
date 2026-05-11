@@ -134,7 +134,7 @@ cmake --build build --parallel
 ctest --test-dir build --output-on-failure
 ```
 
-The current tests cover help/version output, invalid argument handling, missing input files, and invalid non-HEIC input. Successful conversion tests need a small valid HEIC fixture and are planned.
+The current tests cover help/version output, invalid argument handling, missing input files, invalid non-HEIC input, and a real HEIC-to-TIFF smoke conversion using `tests/fixtures/example.heic`.
 
 Optional Valgrind smoke test for the invalid-input path:
 
@@ -185,7 +185,6 @@ Current implementation limitations:
 - Does not protect existing output files from overwrite.
 - Does not write through a temporary file plus atomic rename yet.
 - Does not expose options for alpha handling, compression, strict mode, recursive input, or output directories.
-- Valid HEIC conversion is not yet covered by a checked-in positive fixture test.
 
 ## Troubleshooting
 
