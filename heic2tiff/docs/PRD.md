@@ -22,7 +22,7 @@ heic2tiff --version
 
 - Single HEIC/HEIF input to single TIFF output.
 - Decode primary image with libheif to RGB/RGBA.
-- Write RGB/RGBA TIFF with libtiff.
+- Write RGB/RGBA baseline TIFF with the built-in writer.
 - Support common 4K-class still images:
   - maximum dimension: 4096 pixels per side
   - maximum decoded pixels: 4096 × 4096
@@ -38,7 +38,7 @@ heic2tiff --version
 - Resizing, cropping, rotation UI, metadata editing, or cloud integrations.
 - 48 MP+ native still support above 4096 pixels per side.
 - BigTIFF or custom compression/bit-depth controls.
-- Pixel-perfect color-management guarantees beyond libheif/libtiff behavior.
+- Pixel-perfect color-management guarantees beyond libheif and built-in TIFF writer behavior.
 
 ## Acceptance criteria
 

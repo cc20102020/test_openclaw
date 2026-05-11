@@ -65,12 +65,12 @@ Add focused C tests around internal functions where possible:
 
 ### TIFF writer tests
 
-Add integration tests that convert a tiny valid HEIC to TIFF, then inspect the TIFF with libtiff or `tiffinfo` when available:
+Add integration tests that convert a tiny valid HEIC to TIFF, then inspect the TIFF with an image reader or `tiffinfo` when available:
 
 - Image width/height tags match source.
 - Samples per pixel is 3 or 4 as expected.
 - Bits per sample is 8.
-- Output file is readable by libtiff.
+- Output file is readable by common TIFF readers.
 - Pixel smoke check for a 1x1 or 2x2 fixture.
 
 ## Valgrind / Memory Checks
@@ -108,7 +108,7 @@ Before releases or larger refactors:
 
 ## CI Recommendation
 
-Add a CI job that installs `libheif-dev`, `libtiff-dev`, `cmake`, and a C compiler, then runs:
+Add a CI job that installs CMake, a C compiler, and runtime libheif for real conversion tests, then runs:
 
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release

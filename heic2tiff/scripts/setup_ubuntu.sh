@@ -5,7 +5,5 @@ sudo apt update
 sudo apt install -y \
   build-essential \
   cmake \
-  pkg-config \
-  libheif-dev \
-  libtiff-dev \
+  libheif1 \
   valgrind

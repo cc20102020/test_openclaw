@@ -5,10 +5,6 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(LIBHEIF REQUIRED IMPORTED_TARGET libheif)
-pkg_check_modules(LIBTIFF REQUIRED IMPORTED_TARGET libtiff-4)
-
 add_executable(heic2tiff
   src/main.c
   src/cli.c
@@ -22,7 +18,7 @@ add_executable(heic2tiff
 )
 
 target_include_directories(heic2tiff PRIVATE src)
-target_link_libraries(heic2tiff PRIVATE PkgConfig::LIBHEIF PkgConfig::LIBTIFF)
+target_link_libraries(heic2tiff PRIVATE ${CMAKE_DL_LIBS})
 target_compile_options(heic2tiff PRIVATE -Wall -Wextra -Wpedantic)
 
 add_executable(dimension_limits_test
@@ -30,7 +26,6 @@ add_executable(dimension_limits_test
   src/heic_decode.c
 )
 target_include_directories(dimension_limits_test PRIVATE src)
-target_link_libraries(dimension_limits_test PRIVATE PkgConfig::LIBHEIF)
 target_compile_options(dimension_limits_test PRIVATE -Wall -Wextra -Wpedantic)
 add_test(NAME dimension_limits COMMAND dimension_limits_test)
 

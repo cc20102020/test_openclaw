@@ -1,13 +1,13 @@
 # heic2tiff
 
-`heic2tiff` is a small C command-line tool for converting a single HEIC/HEIF image into a TIFF file. It uses `libheif` for decoding and `libtiff` for writing, with a deliberately narrow internal pipeline so decoding, pixel validation, and TIFF output stay separated.
+`heic2tiff` is a small C command-line tool for converting a single HEIC/HEIF image into a TIFF file. It uses runtime-loaded `libheif` for decoding and a small built-in baseline TIFF writer, with a deliberately narrow internal pipeline so decoding, pixel validation, and TIFF output stay separated.
 
 > Status: early MVP. The current executable supports one input file and one output file. Batch conversion, `--out-dir`, recursive directory traversal, overwrite protection, metadata preservation, and richer conversion options are product goals but are not implemented yet.
 
 ## Features
 
 - Decode the primary image from a HEIC/HEIF file with `libheif`.
-- Write RGB or RGBA TIFF output with `libtiff`.
+- Write RGB or RGBA baseline TIFF output without libtiff.
 - Preserve alpha when `libheif` decodes an alpha channel.
 - Emit concise errors and stable exit codes for common failure classes.
 - Provide CTest coverage for CLI behavior and negative decode paths.
@@ -18,9 +18,7 @@ Build requirements:
 
 - C11 compiler (`gcc` or `clang`)
 - CMake 3.16+
-- `pkg-config`
 - `libheif` development headers/library
-- `libtiff` development headers/library
 
 Optional:
 
@@ -30,7 +28,7 @@ Optional:
 
 ```sh
 sudo apt update
-sudo apt install -y build-essential cmake pkg-config libheif-dev libtiff-dev valgrind
+sudo apt install -y build-essential cmake valgrind
 ```
 
 Or run the helper script:
@@ -154,7 +152,7 @@ src/main.c
   ├─ cli.c            parse arguments, print help/version
   ├─ heic_decode.c    wrap libheif and copy decoded RGB/RGBA pixels
   ├─ pixel_convert.c  validate TIFF-compatible pixel shape
-  ├─ tiff_write.c     write scanline TIFF output via libtiff
+  ├─ tiff_write.c     write baseline TIFF output directly
   └─ error.c          stable status codes and messages
 ```
 
@@ -163,13 +161,13 @@ High-level flow:
 1. Parse CLI arguments into `H2TOptions`.
 2. Decode the primary HEIC image into an owned `H2TImage` buffer.
 3. Validate dimensions, channel count, and pixel buffer state.
-4. Write the image as an 8-bit RGB/RGBA TIFF using LZW compression.
+4. Write the image as an 8-bit RGB/RGBA uncompressed baseline TIFF.
 5. Free owned image memory before exiting.
 
 Architecture notes:
 
 - `heic_decode.c` is the only module that deals directly with `libheif` handles.
-- `tiff_write.c` is the only module that deals directly with `libtiff` output.
+- `tiff_write.c` is a small built-in baseline TIFF writer; it does not depend on libtiff.
 - Architecture-specific pixel conversion files exist under `src/arch/`, but the current conversion path is still minimal validation rather than a full SIMD/assembly selection layer.
 - Design, testing, and security notes live under `docs/`.
 
@@ -180,7 +178,7 @@ Current implementation limitations:
 - Converts exactly one input file to one output path per invocation.
 - Uses the primary HEIC image only; no page/index selection for multi-image containers.
 - Always writes 8-bit TIFF samples based on the decoded RGB/RGBA output from `libheif`.
-- Always requests LZW TIFF compression.
+- Writes uncompressed baseline TIFF to avoid a libtiff dependency.
 - Does not currently preserve EXIF metadata, orientation metadata, ICC profiles, or other HEIC metadata.
 - Does not protect existing output files from overwrite.
 - Does not write through a temporary file plus atomic rename yet.
@@ -188,13 +186,13 @@ Current implementation limitations:
 
 ## Troubleshooting
 
-### CMake cannot find libheif or libtiff
+### CMake cannot find libheif
 
-Make sure development packages and `pkg-config` are installed:
+Make sure runtime libheif is available for real HEIC decoding:
 
 ```sh
-sudo apt install -y pkg-config libheif-dev libtiff-dev
-pkg-config --modversion libheif libtiff-4
+sudo apt install -y
+--modversion libheif
 ```
 
 If the libraries are installed in a non-standard prefix, set `PKG_CONFIG_PATH` before configuring CMake.
@@ -211,7 +209,7 @@ Common causes:
 Try confirming the file with another HEIC-aware tool and checking your `libheif` version:
 
 ```sh
-pkg-config --modversion libheif
+--modversion libheif
 ```
 
 ### `TIFF write failed`
@@ -221,7 +219,7 @@ Common causes:
 - The output directory does not exist.
 - You do not have write permission for the destination.
 - The destination path points to an invalid or unavailable filesystem location.
-- `libtiff` failed while writing scanlines.
+- The built-in TIFF writer failed while writing the output file.
 
 ### Output was overwritten
 

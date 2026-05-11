@@ -8,7 +8,7 @@
 - `cli.c/.h`: argument parsing and help/version output.
 - `heic_decode.c/.h`: libheif context, dimension checks, decode, owned pixel buffer.
 - `pixel_convert.c/.h`: validates decoded RGB/RGBA pixels and future conversion boundary.
-- `tiff_write.c/.h`: libtiff tags and scanline writing.
+- `tiff_write.c/.h`: built-in baseline TIFF tags and scanline writing.
 - `arch/*`: optional architecture-specific pixel helper boundary; generic C remains correctness path.
 - `error.c/.h`: stable status codes and messages.
 
@@ -32,11 +32,11 @@ Current TIFF output accepts decoded RGB/RGBA 8-bit pixels directly. `pixel_conve
 ## TIFF writer pipeline
 
 1. Validate image pointer, dimensions, channels, and stride.
-2. Open output path with libtiff.
-3. Set baseline TIFF tags: dimensions, 8 bits/sample, samples/pixel, RGB photometric, contiguous planar config, LZW compression.
+2. Open output path with C stdio.
+3. Set baseline TIFF tags: dimensions, 8 bits/sample, samples/pixel, RGB photometric, contiguous planar config, no compression.
 4. Mark alpha as unassociated when RGBA is present.
 5. Write one scanline per decoded row.
-6. Close TIFF handle on all paths.
+6. Close the stdio file handle on all paths.
 
 ## Error handling
 
