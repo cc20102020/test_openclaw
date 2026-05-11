@@ -2,68 +2,56 @@
 
 ## Problem
 
-Users often receive HEIC/HEIF images from iPhones and modern cameras, but many archival, publishing, scientific, and document workflows require TIFF. Existing conversion tools are frequently GUI-only, lossy by default, hard to automate, or unclear about metadata/color-profile preservation.
+Users need a Linux CLI tool that converts HEIC/HEIF still images from iPhones and modern cameras into TIFF without GUI steps or hard-coded paths. The tool must handle common 4K-class images safely while avoiding unbounded memory allocation.
 
-`heic2tiff` should provide a simple, scriptable CLI that reliably converts HEIC images to TIFF with predictable output and useful failure messages.
+## Target user
 
-## Target User
+- Linux users converting iPhone/high-end camera HEIC still images.
+- Developers/operators automating image conversion in scripts.
+- Photographers/archivists needing TIFF output from HEIC sources.
 
-- Developers and operators automating image conversion in scripts or pipelines.
-- Photographers, archivists, and designers who need TIFF outputs from HEIC sources.
-- Power users who prefer command-line batch processing over manual GUI conversion.
+## Current CLI use cases
 
-## CLI Use Cases
+```bash
+heic2tiff input.heic output.tiff
+heic2tiff --help
+heic2tiff --version
+```
 
-- Convert one file:
-  - `heic2tiff input.heic output.tiff`
-- Convert one file into an output directory using the source basename:
-  - `heic2tiff input.heic --out-dir converted/`
-- Batch convert multiple files:
-  - `heic2tiff *.heic --out-dir converted/`
-- Recursively convert a directory:
-  - `heic2tiff photos/ --recursive --out-dir tiffs/`
-- Control overwrite behavior:
-  - `heic2tiff input.heic output.tiff --overwrite`
-- Preserve metadata and color profile by default when supported.
-- Emit machine-friendly exit codes and concise errors for failed conversions.
+## MVP scope
 
-## MVP Scope
+- Single HEIC/HEIF input to single TIFF output.
+- Decode primary image with libheif to RGB/RGBA.
+- Write RGB/RGBA TIFF with libtiff.
+- Support common 4K-class still images:
+  - maximum dimension: 4096 pixels per side
+  - maximum decoded pixels: 4096 × 4096
+  - common iPhone 12 MP stills such as 4032 × 3024
+  - UHD 3840 × 2160
+- Reject images above the configured limit with a clear error.
+- Keep portable C11 path as correctness path.
+- Keep inline assembly optional and non-required.
 
-- CLI executable named `heic2tiff`.
-- Accept HEIC/HEIF input file paths and produce `.tif`/`.tiff` output files.
-- Single-file and multi-file batch conversion.
-- Optional `--out-dir` for batch outputs.
-- Optional `--recursive` for directory inputs.
-- Safe default behavior: do not overwrite existing files unless `--overwrite` is provided.
-- Preserve orientation, basic EXIF metadata, and embedded color profile when the underlying decoder/encoder supports it.
-- Clear progress summary: converted, skipped, failed.
-- Non-zero exit status when any requested conversion fails.
-- Help/version flags: `--help`, `--version`.
+## Non-MVP scope
 
-## Non-MVP Scope
+- Batch/directory conversion.
+- Resizing, cropping, rotation UI, metadata editing, or cloud integrations.
+- 48 MP+ native still support above 4096 pixels per side.
+- BigTIFF or custom compression/bit-depth controls.
+- Pixel-perfect color-management guarantees beyond libheif/libtiff behavior.
 
-- GUI application or drag-and-drop interface.
-- Editing features such as resize, crop, rotate, denoise, or watermarking.
-- Advanced TIFF tuning beyond sensible defaults, such as custom compression modes, bit depth selection, tiling, or BigTIFF.
-- Cloud storage integrations.
-- Watch-folder/daemon mode.
-- RAW camera format support.
-- Lossless guarantees beyond what available HEIC decoding libraries can provide.
+## Acceptance criteria
 
-## Success Criteria
-
-- A user can install and run `heic2tiff` without writing code.
-- Single-file conversion succeeds for common iPhone HEIC images.
-- Batch conversion handles at least hundreds of files without crashing on the first bad input.
-- Existing outputs are protected by default.
-- Error messages identify the failed input and likely cause.
-- The CLI behavior is documented with examples.
-- Automated tests cover success, overwrite protection, missing input, invalid input, batch partial failure, and output path handling.
+- Project builds with CMake on Linux.
+- `bash scripts/test.sh` passes.
+- Real iPhone 4032 × 3024 HEIC smoke test converts to TIFF.
+- Valgrind on the real smoke path reports no leaks/errors.
+- Oversized dimensions are rejected before output buffer allocation.
+- Documentation describes the 4K-class limit and limitations.
 
 ## Risks
 
-- HEIC/HEIF decoding support may depend on platform-specific native libraries.
-- Metadata and color-profile preservation can vary by decoder/encoder implementation.
-- Patent/licensing concerns around HEIC libraries may affect distribution choices.
-- Large image batches may expose memory or performance issues.
-- Multi-image HEIC containers and animated HEIC files may require explicit handling or documented limitations.
+- HEIC decoder behavior depends on installed libheif codec support.
+- TIFF output can be much larger than compressed HEIC input.
+- 48 MP/high-resolution camera images may exceed the 4K-class product cap.
+- Color profile and HDR handling are limited by current 8-bit RGB/RGBA decode path.

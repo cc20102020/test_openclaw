@@ -15,10 +15,10 @@ This checklist tracks security-sensitive behavior for `heic2tiff`, especially ar
 ## Huge Dimensions, Integer Overflow, and Allocation Failure
 
 - [x] Check `width * height * channels` with `SIZE_MAX` guards before allocation.
-- [x] Reject decoded frames larger than the configured decoded-pixel cap (`H2T_MAX_DECODED_BYTES`, currently 1 GiB) to reduce denial-of-service risk from decompression bombs or extreme dimensions.
+- [x] Reject decoded frames larger than the configured dimension/pixel caps (`H2T_MAX_DIMENSION` and `H2T_MAX_PIXELS`, currently 4096 px per side and 4096 × 4096 total pixels) to reduce denial-of-service risk from decompression bombs or extreme dimensions. This bounds the full-frame decoded RGBA buffer to about 64 MiB before libheif/libtiff overhead while supporting 4K-class image workflows.
 - [x] Check row byte count against `INT_MAX` before comparing with libheif's `int` stride.
 - [x] Handle `malloc` failure and return `H2T_ERR_ALLOC` without dereferencing null.
-- [ ] Consider making the decoded-byte limit configurable for trusted batch workflows.
+- [ ] Consider making the dimension/pixel limits configurable for trusted batch workflows.
 - [ ] Add unit tests or mocks for overflow boundaries and allocation-limit rejection.
 
 ## Pixel Copying and String Safety
@@ -62,3 +62,10 @@ This checklist tracks security-sensitive behavior for `heic2tiff`, especially ar
 - [ ] Enable sanitizer presets for development builds.
 - [ ] For release packaging, consider hardening flags such as stack protector, PIE, RELRO/NOW, and `_FORTIFY_SOURCE` where supported by the platform/toolchain.
 - [ ] Keep the portable C conversion path as the correctness reference for any future SIMD/assembly optimizations.
+
+## 4K limit security notes
+
+- Decode rejects images above `H2T_MAX_DIMENSION` or `H2T_MAX_PIXELS` before allocating the output buffer.
+- The limit reduces risk from oversized or malicious image dimensions.
+- Integer overflow checks remain required before width × height × channels calculations.
+- The limit is product behavior, not a substitute for libheif/libtiff CVE monitoring.

@@ -46,3 +46,10 @@ Use this checklist for changes to `heic2tiff`, especially decoder, pixel buffer,
 - No inline assembly is currently present; the architecture files are wrappers around the generic copy path.
 - CLI diagnostics were moved to stderr for invalid invocations, with short help/version aliases added.
 - TIFF writing now validates image shape/stride and checks required TIFF tag setup.
+
+## 4K image review additions
+
+- [ ] Keep `H2T_MAX_DIMENSION` and `H2T_MAX_PIXELS` consistent with README and PRD.
+- [ ] Check image dimensions before decode allocation and again after libheif transformations.
+- [ ] Add/update boundary tests when changing supported image size limits.
+- [ ] Real smoke-test at least one iPhone/high-end camera HEIC near 4K-class dimensions.

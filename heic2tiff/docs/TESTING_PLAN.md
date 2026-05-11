@@ -117,3 +117,14 @@ ctest --test-dir build --output-on-failure
 ```
 
 A second optional debug job can run Valgrind if the CI image supports it without excessive runtime.
+
+## 4K regression coverage
+
+The suite includes `dimension_limits`, a unit-style CTest executable covering the supported 4K-class boundary:
+
+- 4032 × 3024 iPhone HEIC dimensions are accepted.
+- 3840 × 2160 UHD dimensions are accepted.
+- 4096 × 4096 is the maximum supported square image.
+- Dimensions over 4096 pixels on either side are rejected.
+
+Real smoke testing should also convert an actual iPhone/high-end camera HEIC and verify TIFF output metadata with an image reader.

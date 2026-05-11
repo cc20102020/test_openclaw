@@ -25,6 +25,15 @@ target_include_directories(heic2tiff PRIVATE src)
 target_link_libraries(heic2tiff PRIVATE PkgConfig::LIBHEIF PkgConfig::LIBTIFF)
 target_compile_options(heic2tiff PRIVATE -Wall -Wextra -Wpedantic)
 
+add_executable(dimension_limits_test
+  tests/dimension_limits_test.c
+  src/heic_decode.c
+)
+target_include_directories(dimension_limits_test PRIVATE src)
+target_link_libraries(dimension_limits_test PRIVATE PkgConfig::LIBHEIF)
+target_compile_options(dimension_limits_test PRIVATE -Wall -Wextra -Wpedantic)
+add_test(NAME dimension_limits COMMAND dimension_limits_test)
+
 enable_testing()
 
 set(HEIC2TIFF_CLI_TEST_DRIVER ${CMAKE_CURRENT_SOURCE_DIR}/tests/cli_tests.cmake)
