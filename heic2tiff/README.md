@@ -1,12 +1,12 @@
 # heic2tiff
 
-`heic2tiff` is a small C command-line tool for converting a single HEIC/HEIF image into a TIFF file. It uses runtime-loaded `libheif` for decoding and a small built-in baseline TIFF writer, with a deliberately narrow internal pipeline so decoding, pixel validation, and TIFF output stay separated.
+`heic2tiff` is a small C command-line tool for converting a single HEIC/HEIF image into a TIFF file. The standalone build statically links HEIC decoding support and uses a small built-in baseline TIFF writer, with a deliberately narrow internal pipeline so decoding, pixel validation, and TIFF output stay separated.
 
 > Status: early MVP. The current executable supports one input file and one output file. Batch conversion, `--out-dir`, recursive directory traversal, overwrite protection, metadata preservation, and richer conversion options are product goals but are not implemented yet.
 
 ## Features
 
-- Decode the primary image from a HEIC/HEIF file with `libheif`.
+- Decode the primary image from a HEIC/HEIF file with statically linked HEIC decoder support in the standalone build.
 - Write RGB or RGBA baseline TIFF output without libtiff.
 - Preserve alpha when `libheif` decodes an alpha channel.
 - Emit concise errors and stable exit codes for common failure classes.
@@ -17,8 +17,9 @@
 Build requirements:
 
 - C11 compiler (`gcc` or `clang`)
+- C++ compiler for building bundled static HEIC decoder dependencies
 - CMake 3.16+
-- `libheif` development headers/library
+- `curl` for the standalone static build helper
 
 Optional:
 
@@ -28,7 +29,7 @@ Optional:
 
 ```sh
 sudo apt update
-sudo apt install -y build-essential cmake valgrind
+sudo apt install -y build-essential cmake curl valgrind
 ```
 
 Or run the helper script:
@@ -39,7 +40,13 @@ Or run the helper script:
 
 ## Build
 
-Using the helper script:
+For the standalone static executable, use:
+
+```sh
+./scripts/build_static.sh
+```
+
+This produces a statically linked `build-static/heic2tiff` binary with no dynamic library dependencies. For local development, the normal dynamic helper remains available:
 
 ```sh
 ./scripts/build.sh
@@ -55,7 +62,7 @@ cmake --build build --parallel
 The executable is produced at:
 
 ```text
-build/heic2tiff
+build-static/heic2tiff
 ```
 
 Useful environment overrides for the helper script:
@@ -68,14 +75,14 @@ CMAKE_BUILD_PARALLEL_LEVEL=4 ./scripts/build.sh
 ## Run
 
 ```sh
-./build/heic2tiff input.heic output.tiff
+./build-static/heic2tiff input.heic output.tiff
 ```
 
 Help and version:
 
 ```sh
-./build/heic2tiff --help
-./build/heic2tiff --version
+./build-static/heic2tiff --help
+./build-static/heic2tiff --version
 ```
 
 Exit codes:

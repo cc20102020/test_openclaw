@@ -18,7 +18,32 @@ add_executable(heic2tiff
 )
 
 target_include_directories(heic2tiff PRIVATE src)
-target_link_libraries(heic2tiff PRIVATE ${CMAKE_DL_LIBS})
+option(H2T_STATIC_STANDALONE "Build a fully static standalone heic2tiff binary" OFF)
+set(H2T_STATIC_PREFIX "" CACHE PATH "Prefix containing static libheif/libde265 dependencies")
+
+if(H2T_STATIC_STANDALONE)
+  if(NOT H2T_STATIC_PREFIX)
+    message(FATAL_ERROR "H2T_STATIC_PREFIX is required when H2T_STATIC_STANDALONE=ON")
+  endif()
+  set(_H2T_ORIGINAL_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
+  set(CMAKE_FIND_LIBRARY_SUFFIXES .a)
+  find_library(SHARPYUV_STATIC_LIBRARY sharpyuv REQUIRED)
+  set(CMAKE_FIND_LIBRARY_SUFFIXES ${_H2T_ORIGINAL_FIND_LIBRARY_SUFFIXES})
+  set(H2T_HEIF_LIBS
+    ${H2T_STATIC_PREFIX}/lib/libheif.a
+    ${H2T_STATIC_PREFIX}/lib/libde265.a
+    ${SHARPYUV_STATIC_LIBRARY}
+    stdc++
+    m
+    pthread
+  )
+  target_link_options(heic2tiff PRIVATE -static)
+else()
+  find_library(HEIF_LIBRARY heif REQUIRED)
+  set(H2T_HEIF_LIBS ${HEIF_LIBRARY})
+endif()
+
+target_link_libraries(heic2tiff PRIVATE ${H2T_HEIF_LIBS})
 target_compile_options(heic2tiff PRIVATE -Wall -Wextra -Wpedantic)
 
 add_executable(dimension_limits_test
@@ -26,6 +51,7 @@ add_executable(dimension_limits_test
   src/heic_decode.c
 )
 target_include_directories(dimension_limits_test PRIVATE src)
+target_link_libraries(dimension_limits_test PRIVATE ${H2T_HEIF_LIBS})
 target_compile_options(dimension_limits_test PRIVATE -Wall -Wextra -Wpedantic)
 add_test(NAME dimension_limits COMMAND dimension_limits_test)
 

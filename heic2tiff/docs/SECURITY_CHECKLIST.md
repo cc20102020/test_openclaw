@@ -45,8 +45,8 @@ This checklist tracks security-sensitive behavior for `heic2tiff`, especially ar
 
 ## Dependency CVE Awareness
 
-- [ ] Track runtime libheif security advisories and distro package updates.
-- [ ] Track TIFF writer boundary tests and runtime libheif security advisories.
+- [ ] Track bundled static HEIC decoder security advisories and distro package updates.
+- [ ] Track TIFF writer boundary tests and bundled static HEIC decoder security advisories.
 - [ ] In CI/release builds, record dependency versions (`--modversion libheif`).
 - [ ] Consider running a dependency scanner appropriate to the packaging target before releases.
 

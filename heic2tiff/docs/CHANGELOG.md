@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Removed compile/link-time libheif dependency by loading libheif dynamically at runtime.
+- Added a standalone static build path that links HEIC decoding support into the executable and avoids dynamic library loading.
 - Removed libtiff build/runtime dependency by replacing it with a built-in uncompressed baseline TIFF writer.
 - Added explicit 4K-class image support limits: up to 4096 pixels per side and 4096 × 4096 decoded pixels.
 - Added `H2T_ERR_TOO_LARGE` for images above the supported limit.

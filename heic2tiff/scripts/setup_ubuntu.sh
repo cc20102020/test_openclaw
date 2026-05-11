@@ -5,5 +5,5 @@ sudo apt update
 sudo apt install -y \
   build-essential \
   cmake \
-  libheif1 \
+  curl \
   valgrind

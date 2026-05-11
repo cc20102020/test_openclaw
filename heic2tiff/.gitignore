@@ -1,4 +1,5 @@
 build/
+build-static/
 *.o
 *.out
 *.tiff
