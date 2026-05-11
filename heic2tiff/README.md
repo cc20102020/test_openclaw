@@ -134,7 +134,7 @@ cmake --build build --parallel
 ctest --test-dir build --output-on-failure
 ```
 
-The current tests cover help/version output, invalid argument handling, missing input files, invalid non-HEIC input, and a real HEIC-to-TIFF smoke conversion using `tests/fixtures/example.heic`.
+The current tests cover help/version output, invalid argument handling, missing input files, invalid non-HEIC input, and real HEIC-to-TIFF smoke/regression conversions using `tests/fixtures/example.heic` and `tests/fixtures/sample1.heic`.
 
 Optional Valgrind smoke test for the invalid-input path:
 

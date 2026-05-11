@@ -95,15 +95,23 @@ elseif(TEST_CASE STREQUAL "invalid_input_file")
     message(FATAL_ERROR "INVALID_FIXTURE is required for invalid_input_file")
   endif()
   run_case(3 "" "HEIC decode failed" ARGS "${INVALID_FIXTURE}" "${tmp_out}" OUTPUT_FILE "${tmp_out}")
-elseif(TEST_CASE STREQUAL "valid_sample_conversion")
-  if(NOT DEFINED SAMPLE_FIXTURE)
-    message(FATAL_ERROR "SAMPLE_FIXTURE is required for valid_sample_conversion")
+elseif(TEST_CASE STREQUAL "valid_sample_conversion" OR TEST_CASE STREQUAL "sample1_regression_conversion")
+  if(TEST_CASE STREQUAL "sample1_regression_conversion")
+    if(NOT DEFINED SAMPLE1_FIXTURE)
+      message(FATAL_ERROR "SAMPLE1_FIXTURE is required for sample1_regression_conversion")
+    endif()
+    set(input_fixture "${SAMPLE1_FIXTURE}")
+  else()
+    if(NOT DEFINED SAMPLE_FIXTURE)
+      message(FATAL_ERROR "SAMPLE_FIXTURE is required for valid_sample_conversion")
+    endif()
+    set(input_fixture "${SAMPLE_FIXTURE}")
   endif()
   if(EXISTS "${tmp_out}")
     file(REMOVE "${tmp_out}")
   endif()
   execute_process(
-    COMMAND "${H2T_EXE}" "${SAMPLE_FIXTURE}" "${tmp_out}"
+    COMMAND "${H2T_EXE}" "${input_fixture}" "${tmp_out}"
     RESULT_VARIABLE actual_result
     OUTPUT_VARIABLE actual_stdout
     ERROR_VARIABLE actual_stderr

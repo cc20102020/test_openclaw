@@ -30,6 +30,7 @@ enable_testing()
 set(HEIC2TIFF_CLI_TEST_DRIVER ${CMAKE_CURRENT_SOURCE_DIR}/tests/cli_tests.cmake)
 set(HEIC2TIFF_INVALID_FIXTURE ${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/not_heic.txt)
 set(HEIC2TIFF_SAMPLE_FIXTURE ${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/example.heic)
+set(HEIC2TIFF_SAMPLE1_FIXTURE ${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/sample1.heic)
 
 function(add_heic2tiff_cli_test test_name)
   add_test(
@@ -39,6 +40,7 @@ function(add_heic2tiff_cli_test test_name)
       -DTEST_CASE=${test_name}
       -DINVALID_FIXTURE=${HEIC2TIFF_INVALID_FIXTURE}
       -DSAMPLE_FIXTURE=${HEIC2TIFF_SAMPLE_FIXTURE}
+      -DSAMPLE1_FIXTURE=${HEIC2TIFF_SAMPLE1_FIXTURE}
       -P ${HEIC2TIFF_CLI_TEST_DRIVER}
   )
 endfunction()
@@ -55,3 +57,4 @@ add_heic2tiff_cli_test(same_input_output)
 add_heic2tiff_cli_test(missing_input_file)
 add_heic2tiff_cli_test(invalid_input_file)
 add_heic2tiff_cli_test(valid_sample_conversion)
+add_heic2tiff_cli_test(sample1_regression_conversion)

@@ -32,7 +32,7 @@ ctest --test-dir build --output-on-failure
 Keep fixtures small and deterministic:
 
 - Use text or tiny binary files for negative tests. `tests/fixtures/not_heic.txt` is intentionally not a valid HEIC and should remain tiny.
-- `tests/fixtures/example.heic` is a real sample HEIC fixture from the upstream libheif gh-pages example, used for positive conversion smoke tests. For future pixel-precise regression tests, prefer generated 1x1 or 2x2 images with known RGB/RGBA pixels.
+- `tests/fixtures/example.heic` and `tests/fixtures/sample1.heic` is a real sample HEIC fixture from the upstream libheif gh-pages example, used for positive conversion smoke tests. For future pixel-precise regression tests, prefer generated 1x1 or 2x2 images with known RGB/RGBA pixels.
 - If valid HEIC fixtures are too large or have licensing concerns, generate them in a test helper script from a checked-in source image when required tools are available, and skip those tests when generation tools are missing.
 - Store expected metadata rather than large golden output files when possible: width, height, channel count, TIFF tags, and selected pixel values.
 
@@ -102,7 +102,7 @@ Before releases or larger refactors:
 1. Run the normal CTest suite on Linux x86_64.
 2. Run the suite with `CMAKE_BUILD_TYPE=Debug` and compiler warnings enabled.
 3. Run Valgrind memcheck when available.
-4. Run the checked-in `valid_sample_conversion` test using `tests/fixtures/example.heic` and verify TIFF metadata/magic.
+4. Run the checked-in `valid_sample_conversion` test using `tests/fixtures/example.heic` and `tests/fixtures/sample1.heic` and verify TIFF metadata/magic.
 5. Run tests on ARM/aarch64 or CI emulation when touching `src/arch/*` conversion code.
 6. Add a regression fixture for every bug that reaches users: the smallest input that reproduces it, the expected exit code/output behavior, and a short note in this file if the behavior is subtle.
 
