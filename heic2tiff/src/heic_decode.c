@@ -5,7 +5,11 @@
 #include <stdint.h>
 #include <string.h>
 
-#define H2T_MAX_DECODED_BYTES ((size_t)1024 * 1024 * 1024)
+int h2t_dimensions_supported(int width, int height) {
+    if (width <= 0 || height <= 0) return 0;
+    if (width > H2T_MAX_DIMENSION || height > H2T_MAX_DIMENSION) return 0;
+    return (size_t)width <= H2T_MAX_PIXELS / (size_t)height;
+}
 
 static int checked_size(int width, int height, int channels, size_t *out) {
     if (width <= 0 || height <= 0 || channels <= 0 || out == NULL) return 0;
@@ -33,6 +37,13 @@ H2TStatus h2t_decode_heic(const char *path, H2TImage *out_image) {
     err = heif_context_get_primary_image_handle(ctx, &handle);
     if (err.code != heif_error_Ok) goto cleanup;
 
+    int handle_width = heif_image_handle_get_width(handle);
+    int handle_height = heif_image_handle_get_height(handle);
+    if (!h2t_dimensions_supported(handle_width, handle_height)) {
+        status = H2T_ERR_TOO_LARGE;
+        goto cleanup;
+    }
+
     int has_alpha = heif_image_handle_has_alpha_channel(handle);
     enum heif_chroma chroma = has_alpha ? heif_chroma_interleaved_RGBA : heif_chroma_interleaved_RGB;
     int channels = has_alpha ? 4 : 3;
@@ -43,8 +54,11 @@ H2TStatus h2t_decode_heic(const char *path, H2TImage *out_image) {
     int width = heif_image_get_width(img, heif_channel_interleaved);
     int height = heif_image_get_height(img, heif_channel_interleaved);
     size_t total = 0;
+    if (!h2t_dimensions_supported(width, height)) {
+        status = H2T_ERR_TOO_LARGE;
+        goto cleanup;
+    }
     if (!checked_size(width, height, channels, &total)) goto cleanup;
-    if (total > H2T_MAX_DECODED_BYTES) goto cleanup;
 
     size_t row_bytes = (size_t)width * (size_t)channels;
     if (row_bytes > (size_t)INT_MAX) goto cleanup;

@@ -252,3 +252,13 @@ Then verify you are running the freshly built executable from the same build dir
 - `docs/TECHNICAL_DESIGN.md` — desired architecture and future pipeline design
 - `docs/TESTING_PLAN.md` — current and planned testing strategy
 - `docs/SECURITY_CHECKLIST.md` — input, output, dependency, and hardening notes
+
+## 4K image support
+
+`heic2tiff` supports common iPhone and high-end camera HEIC/HEIF still images up to a bounded 4K-class limit:
+
+- Maximum dimension: 4096 pixels per side
+- Maximum decoded pixels: 4096 × 4096
+- Typical iPhone 12 MP HEIC images such as 4032 × 3024 are supported
+
+Images above this limit are rejected with a clear error instead of attempting unbounded allocation. This keeps memory use predictable for local CLI and CI runs.
